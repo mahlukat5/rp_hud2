@@ -1,0 +1,237 @@
+pics,renderTargets = {},{}
+local baslangic,isLoggedIn,isMinimize,needUpdate = getTickCount(),nil,false,false
+local sure3dakika,sure2dakika,sure1dakika = getTickCount(),getTickCount(),getTickCount()
+local isLoggedIn,isMinimize,needUpdate = nil,false,false
+local disabledHUD = {"health", "armour", "breath", "clock", "money", "weapon", "ammo", "vehicle_name", "area_name", "wanted"} 
+local rectG = 20
+for i,v in ipairs({"heart","zirh","hunger","water","dollar","circle"}) do
+	pics[v] = dxCreateTexture("images/nhud/"..v..".png")
+end
+local updatedatas = {
+	-- burdaki data isimleri güncellenince hud güncellenir.
+	["money"]=true, -- oyuncuPara
+	["bankmoney"]=true, -- oyuncuBankaPara
+	["hunger"]=true, -- oyuncuAclik
+	["thirst"]=true, -- oyuncuSusuzluk
+	["stamina"]=true, -- oyuncuStamina
+	["level"]=true, -- oyuncuLevel
+	["hoursplayed"]=true, -- oyuncuXp
+	["hoursaim"]=true, -- oyuncuGerekenXP
+}
+function getUpdateData(key)
+	return updatedatas[key] or 0
+end
+addEventHandler("onClientResourceStart", resourceRoot, function()
+	for i,hud in ipairs(disabledHUD) do
+		setPlayerHudComponentVisible(hud, false)
+	end
+	for key,v in pairs(updatedatas) do
+		updatedatas[key] = getElementData(localPlayer,key) or 0
+	end
+	isLoggedIn = tonumber(isData(localPlayer,"loggedin") or 0) == 1
+	if isLoggedIn then
+		createTarget("yemek_su_level_paralar")
+		addEventHandler("onClientRender",root,render)
+	end	
+end)
+function createTarget(data)
+	if isMinimize then needUpdate=true return end
+	if renderTargets[data] then destroyElement(renderTargets[data]) end
+	if data == "yemek_su_level_paralar" then
+		local texture = dxCreateRenderTarget(sx,sy,true)
+		dxSetRenderTarget(texture)
+		dxSetBlendMode("modulate_add")
+		
+		-- Can
+		---------->>
+		drawCircle2(positions["heart"].x,positions["heart"].y,positions["heart"].g,renkler["can"])
+		dxDrawImage(positions["heart"].x-(positions["heart"].g/2),positions["heart"].y-(positions["heart"].u/2),positions["heart"].g,positions["heart"].u,pics["heart"],0,0,0,renkler["beyaz"])
+		-- Zırh
+		---------->>
+		drawCircle2(positions["zirh"].x,positions["zirh"].y,positions["zirh"].g,renkler["zirh"])
+		dxDrawImage(positions["zirh"].x-(positions["zirh"].g/2),positions["zirh"].y-(positions["zirh"].u/2),positions["zirh"].g,positions["zirh"].u,pics["zirh"],0,0,0,renkler["beyaz"])
+	
+		-- Açlık
+		---------->>
+		local aclik_ilerleme = math.ceil((getUpdateData("hunger")/100)*150)
+		dxDrawRoundedRectangle3(10,positions["hunger"].x-150,positions["hunger"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+		dxDrawRoundedRectangle3(10,positions["hunger"].x-aclik_ilerleme,positions["hunger"].y-(rectG/2),aclik_ilerleme,rectG,renkler["aclik"],false,true)
+		drawCircle2(positions["hunger"].x,positions["hunger"].y,positions["hunger"].g,renkler["aclik"])
+		dxDrawImage(positions["hunger"].x-(positions["hunger"].g/2),positions["hunger"].y-(positions["hunger"].u/2),positions["hunger"].g,positions["hunger"].u,pics["hunger"],0,0,0,renkler["beyaz"])
+		dxDrawText(getUpdateData("hunger").."%",positions["hunger"].x-150,positions["hunger"].y-(rectG/2),positions["hunger"].x,positions["hunger"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")	
+		-- Susuzluk
+		---------->>
+		local susuzluk_ilerleme = math.ceil((getUpdateData("thirst")/100)*150)
+		dxDrawRoundedRectangle3(10,positions["water"].x,positions["water"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+		dxDrawRoundedRectangle3(10,positions["water"].x,positions["water"].y-(rectG/2),math.max(susuzluk_ilerleme,15),rectG,renkler["su"],false,true)
+		drawCircle2(positions["water"].x,positions["water"].y,positions["water"].g,renkler["su"])
+		dxDrawImage(positions["water"].x-(positions["water"].g/2),positions["water"].y-(positions["water"].u/2),positions["water"].g,positions["water"].u,pics["water"],0,0,0,renkler["beyaz"])
+		dxDrawText(getUpdateData("thirst").."%",positions["water"].x,positions["water"].y-(rectG/2),positions["water"].x+150,positions["water"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")
+		-- Oyuncu Parası
+		---------->>
+		dxDrawRoundedRectangle3(10,positions["dollar"].x-150,positions["dollar"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+		dxDrawRoundedRectangle3(10,positions["dollar"].x-150,positions["dollar"].y-(rectG/2),150,rectG,renkler["para"],false,true)
+		drawCircle2(positions["dollar"].x,positions["dollar"].y,positions["hunger"].g,renkler["para"])
+		dxDrawImage(positions["dollar"].x-(positions["dollar"].g/2),positions["dollar"].y-(positions["dollar"].u/2),positions["dollar"].g,positions["dollar"].u,pics["dollar"],0,0,0,renkler["beyaz"])
+		dxDrawText("$"..tocomma(getUpdateData("money")),positions["dollar"].x-150,positions["dollar"].y-(rectG/2),positions["dollar"].x,positions["dollar"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")	
+		-- Level
+		---------->>
+		if positions["level"] then
+			local level_ilerleme = math.min(math.ceil((getUpdateData("hoursplayed")/getUpdateData("hoursaim"))*150),150)
+			dxDrawRoundedRectangle3(10,positions["level"].x,positions["level"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+			dxDrawRoundedRectangle3(10,positions["level"].x,positions["level"].y-(rectG/2),math.max(level_ilerleme,15),rectG,renkler["level"],false,true)
+			drawCircle2(positions["level"].x,positions["level"].y,positions["level"].g,renkler["level"])
+			dxDrawText(getUpdateData("hoursplayed").."/"..getUpdateData("hoursaim"),positions["level"].x,positions["level"].y-(rectG/2),positions["level"].x+150,positions["level"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")
+			dxDrawText(getUpdateData("level"),positions["level"].x-(positions["level"].g/2),positions["level"].y-(rectG/2),positions["level"].x+150,positions["level"].y+(rectG/2),renkler["beyaz"],1,"default-bold","left","center")
+		end
+		dxSetBlendMode("blend")
+		dxSetRenderTarget()	
+		renderTargets[data]=texture
+	end
+end
+addEventHandler("onClientRestore",root,function(didClearRenderTargets)
+	isMinimize = false
+    if didClearRenderTargets or needUpdate then
+		setTimer(function()
+			createTarget("yemek_su_level_paralar")
+		end,1000,1)
+    end
+end)
+addEventHandler( "onClientMinimize", root,function()
+	isMinimize = true
+end)
+
+
+
+function render()
+	local suan = getTickCount()
+	-- Yemek Azaltma
+	---------->>
+	if suan-sure3dakika >= 180000 then 
+		sure3dakika = getTickCount()
+		if getUpdateData("hunger") > 0 then
+			if isData(localPlayer, "duty_admin" )  == 0 or isData(localPlayer,"duty_supporter" ) == 0 or isData(localPlayer, "dead") == 0 or not isData(localPlayer, "adminjailed") then
+				setElementData(localPlayer,"hunger",getUpdateData("hunger")-1)
+			end
+		end
+	end
+	-- Su Azaltma
+	---------->>
+	if suan-sure2dakika >= 160000 then 
+		sure2dakika = getTickCount()
+		if getUpdateData("thirst") > 0 then
+			if isData(localPlayer, "duty_admin" )  == 0 or isData(localPlayer,"duty_supporter" ) == 0 or isData(localPlayer, "dead") == 0 or not isData(localPlayer, "adminjailed") then
+				setElementData(localPlayer,"thirst",getUpdateData("thirst")-1)
+			end
+		end
+		if getUpdateData("hunger") >= 50 and getUpdateData("thirst") >= 50 then
+			if getElementHealth(localPlayer) > 5 and getElementHealth(localPlayer) < 100 then
+				setElementHealth(localPlayer, getElementHealth(localPlayer) + 2)
+			end	
+		end
+		if getUpdateData("hunger") <= 0 then
+			setElementHealth(localPlayer, getElementHealth(localPlayer) - 5)
+		end
+		if getUpdateData("thirst") <= 0 then
+			setElementHealth(localPlayer, getElementHealth(localPlayer) - 5)
+		end
+	end
+	if isPlayerMapVisible() then return end
+	
+	
+	-- Can
+	---------->>
+	local oyuncuCan = math.floor(getElementHealth(localPlayer))
+	local can_ilerleme = math.ceil((oyuncuCan/100)*150)
+	dxDrawRoundedRectangle3(10,positions["heart"].x-150,positions["heart"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+	dxDrawRoundedRectangle3(10,positions["heart"].x-can_ilerleme,positions["heart"].y-(rectG/2),can_ilerleme,rectG,renkler["can"],false,true)
+	dxDrawText(oyuncuCan.."%",positions["heart"].x-150,positions["heart"].y-(rectG/2),positions["heart"].x,positions["heart"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")
+	-- Zırh
+	---------->>
+	local oyuncuZirh = math.floor(getPedArmor(localPlayer))
+	local zirh_ilerleme = math.ceil((oyuncuZirh/100)*150)
+	dxDrawRoundedRectangle3(10,positions["zirh"].x,positions["zirh"].y-(rectG/2),150,rectG,renkler["siyah"],false,true)
+	dxDrawRoundedRectangle3(10,positions["zirh"].x,positions["zirh"].y-(rectG/2),math.max(zirh_ilerleme,15),rectG,renkler["zirh"],false,true)
+	dxDrawText(oyuncuZirh.."%",positions["zirh"].x,positions["zirh"].y-(rectG/2),positions["zirh"].x+150,positions["zirh"].y+(rectG/2),renkler["beyaz"],1,"default-bold","center","center")
+
+	if renderTargets["yemek_su_level_paralar"] then
+		dxDrawImage(0,0,sx,sy, renderTargets["yemek_su_level_paralar"])
+	end
+
+	-- Tooltips
+	---------->>
+	-- if isCursorShowing() then
+		showToolTips(positions["heart"].x,positions["heart"].y,positions["heart"].g,"%"..math.ceil(oyuncuCan),nil,renkler["can"])
+		showToolTips(positions["zirh"].x,positions["zirh"].y,positions["zirh"].g,"%"..math.ceil(oyuncuZirh),nil,renkler["zirh"])
+		showToolTips(positions["hunger"].x,positions["hunger"].y,positions["hunger"].g,"%"..math.ceil(getUpdateData("hunger")),nil,renkler["aclik"])
+		showToolTips(positions["water"].x,positions["water"].y,positions["water"].g,"%"..math.ceil(getUpdateData("thirst")),nil,renkler["su"])
+		showToolTips(positions["dollar"].x,positions["dollar"].y,positions["dollar"].g,"$"..tocomma(getUpdateData("money")),nil,renkler["para"])
+		showToolTips(positions["level"].x,positions["level"].y,positions["level"].g,math.ceil(getUpdateData("level")),nil,renkler["level"])
+	-- end
+	
+	-- Silah
+	---------->>
+	
+	local weapon = getPedWeapon(localPlayer)
+	local clip = getPedAmmoInClip(localPlayer)
+	local ammo = getPedTotalAmmo(localPlayer)
+	if (weapon == 0 or weapon == 1 or ammo == 0) then return end
+	
+	local len = #tostring(clip)
+	if string.find(tostring(clip), 1) then len = len - 0.5 end
+	local xoff = (len*17) + 10
+	
+	local len2 = #tostring(ammo-clip)
+	if string.find(tostring(ammo-clip), 1) then len2 = len2 - 0.5 end
+	local weapLen = ((len+len2)*17) + 20
+	if (weapon >= 15 and weapon ~= 40 and weapon <= 44 or weapon >= 46) then
+			-- Ammo in Clip
+		local dX,dY,dW,dH = sx-6,35,sx-6,30
+		local dX,dY,dW,dH = dX-SAFEZONE_X, dY+SAFEZONE_Y, dW-SAFEZONE_X, dH+SAFEZONE_Y
+		dxDrawText(clip, dX+2,dY,dW+2,dH, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(clip, dX,dY+2,dW,dH+2, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(clip, dX-2,dY,dW-2,dH, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(clip, dX,dY-2,dW,dH-2, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(clip, dX,dY,dW,dH, tocolor(110,110,110,255), 1.25, "pricedown", "right")
+			-- Total Ammo
+		local dX,dY,dW,dH = sx-6-xoff,35,sx-6-xoff,30
+		local dX,dY,dW,dH = dX-SAFEZONE_X, dY+SAFEZONE_Y, dW-SAFEZONE_X, dH+SAFEZONE_Y
+		dxDrawText(ammo-clip, dX+2-xoff,dY,dW+2,dH, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(ammo-clip, dX,dY+2,dW,dH+2, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(ammo-clip, dX-2,dY,dW-2,dH, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(ammo-clip, dX,dY-2,dW,dH-2, renkler["siyah"], 1.25, "pricedown", "right")
+		dxDrawText(ammo-clip, dX,dY,dW,dH, tocolor(220,220,220,255), 1.25, "pricedown", "right")
+	else
+		xoff = 0
+		weapLen = 0
+	end
+	if (weapon == 0 or weapon == 1) then return end
+
+	local img = pics["weapons"..weapon]
+	if not img then pics["weapons"..weapon] = dxCreateTexture("images/nhud/weapons/"..weapon..".png","argb", false, "clamp") return end
+	local dX,dY,dW,dH = sx-133-weapLen,35,128,40
+	local dX,dY,dW,dH = dX-SAFEZONE_X, dY+SAFEZONE_Y, dW, dH
+	dxDrawImage(dX, dY, dW, dH, img)
+end
+
+function dataChanger(theKey, oldValue, newValue)
+    if (getElementType(source) == "player") then
+		if updatedatas[theKey] then
+			updatedatas[theKey] = newValue
+			createTarget("yemek_su_level_paralar")
+		elseif (theKey == "loggedin") then
+			isLoggedIn = tonumber(newValue) == 1
+			if isLoggedIn then 
+				setTimer(function()
+					createTarget("yemek_su_level_paralar")
+					addEventHandler("onClientRender",root,render)
+				end,2000,1)	
+			else
+				removeEventHandler("onClientRender",root,render)
+			end	
+		end
+    end
+end
+addEventHandler("onClientElementDataChange", localPlayer, dataChanger)
+
+

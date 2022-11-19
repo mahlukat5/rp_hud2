@@ -1,0 +1,57 @@
+<meta>
+    <script src="util_c.lua" type="client" cache="false" />
+    <script src="c_hud.lua" type="client" cache="false" />
+    <script src="s_hud.lua" type="server" />
+
+	<file src="images/nhud/heart.png" />
+	<file src="images/nhud/zirh.png" />
+	<file src="images/nhud/hunger.png" />
+	<file src="images/nhud/water.png" />
+	<file src="images/nhud/dollar.png" />
+	<file src="images/nhud/briefcase.png" />
+	
+	<file src="images/nhud/weapons/2.png" />
+	<file src="images/nhud/weapons/3.png" />
+	<file src="images/nhud/weapons/4.png" />
+	<file src="images/nhud/weapons/5.png" />
+	<file src="images/nhud/weapons/6.png" />
+	<file src="images/nhud/weapons/7.png" />
+	<file src="images/nhud/weapons/8.png" />
+	<file src="images/nhud/weapons/9.png" />
+	<file src="images/nhud/weapons/10.png" />
+	<file src="images/nhud/weapons/11.png" />
+	<file src="images/nhud/weapons/12.png" />
+	<file src="images/nhud/weapons/14.png" />
+	<file src="images/nhud/weapons/15.png" />
+	<file src="images/nhud/weapons/16.png" />
+	<file src="images/nhud/weapons/17.png" />
+	<file src="images/nhud/weapons/18.png" />
+	<file src="images/nhud/weapons/22.png" />
+	<file src="images/nhud/weapons/23.png" />
+	<file src="images/nhud/weapons/24.png" />
+	<file src="images/nhud/weapons/25.png" />
+	<file src="images/nhud/weapons/26.png" />
+	<file src="images/nhud/weapons/27.png" />
+	<file src="images/nhud/weapons/28.png" />
+	<file src="images/nhud/weapons/29.png" />
+	<file src="images/nhud/weapons/30.png" />
+	<file src="images/nhud/weapons/31.png" />
+	<file src="images/nhud/weapons/32.png" />
+	<file src="images/nhud/weapons/33.png" />
+	<file src="images/nhud/weapons/34.png" />
+	<file src="images/nhud/weapons/35.png" />
+	<file src="images/nhud/weapons/36.png" />
+	<file src="images/nhud/weapons/37.png" />
+	<file src="images/nhud/weapons/38.png" />
+	<file src="images/nhud/weapons/39.png" />
+	<file src="images/nhud/weapons/40.png" />
+	<file src="images/nhud/weapons/41.png" />
+	<file src="images/nhud/weapons/42.png" />
+	<file src="images/nhud/weapons/43.png" />
+	<file src="images/nhud/weapons/44.png" />
+	<file src="images/nhud/weapons/45.png" />
+	<file src="images/nhud/weapons/46.png" />
+
+    <oop>true</oop>
+    <min_mta_version server="1.3.4-0.00000" client="1.5.2-9.07903"></min_mta_version>
+</meta>
